@@ -3,6 +3,8 @@ package lesson2;
 import kotlin.NotImplementedError;
 import kotlin.Pair;
 
+import java.io.IOException;
+
 @SuppressWarnings("unused")
 public class JavaAlgorithms {
     /**
@@ -96,9 +98,23 @@ public class JavaAlgorithms {
      * При сравнении подстрок, регистр символов *имеет* значение.
      * Если имеется несколько самых длинных общих подстрок одной длины,
      * вернуть ту из них, которая встречается раньше в строке first.
+     * Время - O(nr), память - O(n).
      */
     static public String longestCommonSubstring(String firs, String second) {
-        throw new NotImplementedError();
+        int[][] subs = new int[firs.length()][second.length()];
+        String result;
+        int max = 0, index = -1;
+        for (int i = 1; i < firs.length(); i++) {
+            for (int j = 1; j < second.length(); j++) {
+                if (firs.charAt(i - 1) == second.charAt(j - 1)) subs[i][j] = subs[i-1][j-1] + 1;
+                if(subs[i][j] > max) {
+                    max = subs[i][j];
+                    index = i;
+                }
+            }
+        }
+        if (max == 0) return "";
+        else return firs.substring(index - max, index);
     }
 
     /**
@@ -110,8 +126,19 @@ public class JavaAlgorithms {
      *
      * Справка: простым считается число, которое делится нацело только на 1 и на себя.
      * Единица простым числом не считается.
+     * Время - O(nlog(log(n))), память - O(n).
      */
     static public int calcPrimesNumber(int limit) {
-        throw new NotImplementedError();
+        int count = 0;
+        boolean[] sieve = new boolean[limit + 1];
+        for (int i = 2; i*i <= limit; i++) {
+            if (!sieve[i]) for (int k = i*i; k <= limit; k += i) {
+                sieve[k] = true;
+            }
+        }
+        for (int i = 2; i <= limit; i++) {
+            if (!sieve[i]) count++;
+        }
+        return count;
     }
 }
