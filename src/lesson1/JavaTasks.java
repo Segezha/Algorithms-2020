@@ -6,10 +6,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.TreeSet;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class JavaTasks {
@@ -48,17 +45,18 @@ public class JavaTasks {
         ArrayList<Integer> am = new ArrayList<>();
         ArrayList<Integer> pm = new ArrayList<>();
         ArrayList<String> result = new ArrayList<>();
-        BufferedReader reader = Files.newBufferedReader(Paths.get(inputName));
-        String line;
-        int seconds;
-        String[] parts;
-        while ((line = reader.readLine()) != null) {
-            parts = line.split("[: ]");
-            seconds = Integer.parseInt(parts[0]) % 12 * 3600 +
-                    Integer.parseInt(parts[1]) * 60 +
-                    Integer.parseInt(parts[2]);
-            if (parts[3].equals("AM")) am.add(seconds);
-            else pm.add(seconds);
+        try(BufferedReader reader = Files.newBufferedReader(Paths.get(inputName))) {
+            String line;
+            int seconds;
+            String[] parts;
+            while ((line = reader.readLine()) != null) {
+                parts = line.split("[: ]");
+                seconds = Integer.parseInt(parts[0]) % 12 * 3600 +
+                        Integer.parseInt(parts[1]) * 60 +
+                        Integer.parseInt(parts[2]);
+                if (parts[3].equals("AM")) am.add(seconds);
+                else pm.add(seconds);
+            }
         }
         Collections.sort(am);
         Collections.sort(pm);
@@ -71,12 +69,12 @@ public class JavaTasks {
             if (time / 3600 == 0) time += 3600 * 12;
             result.add(String.format("%02d:%02d:%02d PM", time / 3600, time / 60 % 60, time % 60));
         }
-        BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputName));
-        for (String time : result) {
-            writer.write(time);
-            writer.newLine();
+        try(BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputName))) {
+            for (String time : result) {
+                writer.write(time);
+                writer.newLine();
+            }
         }
-        writer.close();
     }
 
     /**
@@ -145,20 +143,21 @@ public class JavaTasks {
         int minTemp = -2730;
         int maxTemp = 5000;
         int limit = maxTemp - minTemp;
-        BufferedReader reader = Files.newBufferedReader(Paths.get(inputName));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            temps.add((int)(Double.parseDouble(line) * 10) - minTemp);
+        try(BufferedReader reader = Files.newBufferedReader(Paths.get(inputName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                temps.add((int) (Double.parseDouble(line) * 10) - minTemp);
+            }
         }
         int[] result = new int[temps.size()];
         for (int i = 0; i < temps.size(); i++) result[i] = temps.get(i);
         result = Sorts.countingSort(result, limit);
-        BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputName));
-        for (int temp : result){
-            writer.write(String.valueOf(((double)(temp + minTemp)) / 10));
-            writer.newLine();
+        try(BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputName))) {
+            for (int temp : result) {
+                writer.write(String.valueOf(((double) (temp + minTemp)) / 10));
+                writer.newLine();
+            }
         }
-        writer.close();
     }
 
 
@@ -190,41 +189,38 @@ public class JavaTasks {
      * 2
      * 2
      * 2
-     * Время - O(n log(n)), память - O(n).
+     * Время - O(n), память - O(n).
      */
     static public void sortSequence(String inputName, String outputName) throws IOException {
-        ArrayList<Integer> numbers = new ArrayList<>();
-        BufferedReader reader = Files.newBufferedReader(Paths.get(inputName));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            numbers.add(Integer.parseInt(line));
+        ArrayList<Integer> result = new ArrayList<>();
+        SortedMap<Integer, Integer> numbers = new TreeMap<>();
+        try(BufferedReader reader = Files.newBufferedReader(Paths.get(inputName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                result.add(Integer.parseInt(line));
+                numbers.merge(Integer.parseInt(line), 1, Integer::sum);
+            }
         }
-        ArrayList<Integer> result = new ArrayList<>(numbers);
-        Collections.sort(numbers);
-        int counter = 1;
         int max = 0;
-        int num = numbers.get(0);
-        for (int i = 0; i < numbers.size() - 1; i++) {
-            if (numbers.get(i + 1).equals(numbers.get(i))) counter++;
-                    else counter = 1;
-            if (counter > max) {
-                max = counter;
-                num = numbers.get(i);
+        int num = 0;
+        for (Map.Entry<Integer, Integer> entry : numbers.entrySet()) {
+            if (entry.getValue() > max) {
+                max = entry.getValue();
+                num = entry.getKey();
             }
             }
-        Iterator<Integer> iter = result.iterator();
-        while (iter.hasNext()) {
-            if (iter.next().equals(num)) iter.remove();
+        try(BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputName))) {
+            for (int i : result) {
+                if (i != num) {
+                    writer.write(String.valueOf(i));
+                    writer.newLine();
+                }
+            }
+            for (int i = 0; i < max; i++) {
+                writer.write(String.valueOf(num));
+                writer.newLine();
+            }
         }
-        for (int i = 0; i < max; i++) {
-            result.add(num);
-        }
-        BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputName));
-        for (int i : result){
-            writer.write(String.valueOf(i));
-            writer.newLine();
-        }
-        writer.close();
     }
 
     /**

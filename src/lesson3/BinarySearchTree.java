@@ -1,9 +1,10 @@
 package lesson3;
 
-import java.util.*;
 import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 // attention: Comparable is supported but Comparator is not
 public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> implements CheckableSortedSet<T> {
@@ -98,11 +99,73 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
      * Спецификация: {@link Set#remove(Object)} (Ctrl+Click по remove)
      *
      * Средняя
+     * Время - O(Log(n)), память - O(n).
      */
     @Override
     public boolean remove(Object o) {
-        // TODO
-        throw new NotImplementedError();
+        @SuppressWarnings("unchecked")
+        T t = (T) o;
+        assert t != null;
+        if (!contains(t) || root == null) return false;
+        ArrayList<Node<T>> pair = this.findWithParent(root, t, root);
+        Node<T> curNode = pair.get(0);
+        Node<T> parent = pair.get(1);
+        int comparison = curNode == null ? -1 : (t).compareTo(curNode.value);
+        if (comparison != 0) return false;
+        if (curNode.left == null) {
+            if (curNode.value.equals(root.value)) root = curNode.right;
+            else if (parent.right != null && parent.right.value.equals(curNode.value)) parent.right = curNode.right;
+            else parent.left = curNode.right;
+            size--;
+        }
+        else if (curNode.right == null) {
+            if (curNode.value.equals(root.value)) root = curNode.left;
+            else if (parent.right != null && parent.right.value.equals(curNode.value)) parent.right = curNode.left;
+            else parent.left = curNode.left;
+            size--;
+        }
+        else {
+            if (curNode.right.left == null) {
+                Node<T> replacing = new Node<>(curNode.right.value);
+                replacing.left = curNode.left;
+                replacing.right = curNode.right.right;
+                curNode.right = null;
+                if (curNode.value.equals(root.value)) root = replacing;
+                else if (parent.right != null && parent.right.value.equals(curNode.value)) parent.right = replacing;
+                else parent.left = replacing;
+                size--;
+            }
+            else {
+                Node<T> farLeft = curNode.right;
+                while (farLeft.left.left != null) {
+                    farLeft = farLeft.left;
+                }
+                Node<T> replacing = new Node<>(farLeft.left.value);
+                replacing.left = curNode.left;
+                replacing.right = curNode.right;
+                this.remove(farLeft.left.value);
+                if (curNode.value.equals(root.value)) root = replacing;
+                else if (parent.right != null && parent.right.value.equals(curNode.value)) parent.right = replacing;
+                else parent.left = replacing;
+            }
+        }
+        return true;
+    }
+
+    private ArrayList<Node<T>> findWithParent(Node<T> start, T value, Node<T> parent) {
+        ArrayList<Node<T>> res = new ArrayList<>(2);
+        res.add(start);
+        res.add(parent);
+        int comparison = value.compareTo(start.value);
+        if (comparison == 0) {
+            return res;
+        } else if (comparison < 0) {
+            if (start.left == null) return res;
+            return findWithParent(start.left, value, start);
+        } else {
+            if (start.right == null) return res;
+            return findWithParent(start.right, value, start);
+        }
     }
 
     @Nullable
