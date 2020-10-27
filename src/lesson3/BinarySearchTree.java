@@ -177,13 +177,17 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        return new BinarySearchTreeIterator();
+        return new BinarySearchTreeIterator(root);
     }
 
     public class BinarySearchTreeIterator implements Iterator<T> {
+        ArrayDeque<Node<T>> deque = new ArrayDeque<>();
+        Node<T> curNode;
+        Node<T> taken;
 
-        private BinarySearchTreeIterator() {
-            // Добавьте сюда инициализацию, если она необходима.
+        private BinarySearchTreeIterator(Node<T> root) {
+            curNode = root;
+            leftNodes(root);
         }
 
         /**
@@ -198,8 +202,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public boolean hasNext() {
-            // TODO
-            throw new NotImplementedError();
+            return !deque.isEmpty();
         }
 
         /**
@@ -217,8 +220,17 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public T next() {
-            // TODO
-            throw new NotImplementedError();
+
+            taken = deque.pop();
+            leftNodes(taken.right);
+            return taken.value;
+        }
+
+        private void leftNodes(Node<T> node) {
+            if (node != null) {
+                deque.add(node);
+                leftNodes(node.left);
+            }
         }
 
         /**
@@ -235,8 +247,9 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public void remove() {
-            // TODO
-            throw new NotImplementedError();
+            if (taken == null) throw new IllegalStateException();
+            BinarySearchTree.this.remove(taken.value);
+            taken = null;
         }
     }
 
