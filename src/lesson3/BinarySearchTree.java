@@ -199,6 +199,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          * Спецификация: {@link Iterator#hasNext()} (Ctrl+Click по hasNext)
          *
          * Средняя
+         * Время - O(1), память - О(1).
          */
         @Override
         public boolean hasNext() {
@@ -217,6 +218,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          * Спецификация: {@link Iterator#next()} (Ctrl+Click по next)
          *
          * Средняя
+         * Время - О(n), память - О(n).
          */
         @Override
         public T next() {
@@ -244,6 +246,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          * Спецификация: {@link Iterator#remove()} (Ctrl+Click по remove)
          *
          * Сложная
+         * Время - О(log(n)), память - О(n).
          */
         @Override
         public void remove() {
