@@ -186,6 +186,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         Node<T> taken;
 
         private BinarySearchTreeIterator(Node<T> root) {
+            if (root == null) return;
             curNode = root;
             leftNodes(root);
         }

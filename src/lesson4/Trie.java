@@ -92,8 +92,47 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     @NotNull
     @Override
     public Iterator<String> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new TrieIterator();
     }
 
+    public class TrieIterator implements Iterator<String> {
+        ArrayDeque<String> deque = new ArrayDeque<>();
+        String taken;
+
+        private TrieIterator() {
+            if (root == null) return;
+            findWords(root, "");
+        }
+
+        //Время - О(n), память - О(1).
+        private void findWords (Node node, String word) {
+            if (!node.children.isEmpty()) {
+                for (Map.Entry<Character, Node> current : node.children.entrySet()) {
+                    if (current.getKey() != (char) 0) findWords(current.getValue(), word + current.getKey());
+                    else deque.add(word);
+                }
+            }
+        }
+
+        @Override
+        //Время - О(1), память - О(1).
+        public boolean hasNext() {
+            return !deque.isEmpty();
+        }
+
+        @Override
+        //Время - О(n), память - О(n).
+        public String next() {
+                taken = deque.pop();
+                return taken;
+        }
+
+        @Override
+        //Время - О(n), память - О(n).
+        public void remove() {
+            if(taken == null) throw new IllegalStateException();
+            Trie.this.remove(taken);
+            taken = null;
+        }
+    }
 }
