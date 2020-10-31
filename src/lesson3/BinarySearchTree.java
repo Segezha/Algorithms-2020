@@ -110,8 +110,11 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         ArrayList<Node<T>> pair = this.findWithParent(root, t, root);
         Node<T> curNode = pair.get(0);
         Node<T> parent = pair.get(1);
-        int comparison = curNode == null ? -1 : (t).compareTo(curNode.value);
-        if (comparison != 0) return false;
+        remover(curNode, parent);
+        return true;
+    }
+
+    private  void remover(Node<T> curNode, Node<T> parent) {
         if (curNode.left == null) {
             if (curNode.value.equals(root.value)) root = curNode.right;
             else if (parent.right != null && parent.right.value.equals(curNode.value)) parent.right = curNode.right;
@@ -149,7 +152,6 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
                 else parent.left = replacing;
             }
         }
-        return true;
     }
 
     private ArrayList<Node<T>> findWithParent(Node<T> start, T value, Node<T> parent) {
@@ -182,12 +184,10 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
 
     public class BinarySearchTreeIterator implements Iterator<T> {
         ArrayDeque<Node<T>> deque = new ArrayDeque<>();
-        Node<T> curNode;
         Node<T> taken;
 
         private BinarySearchTreeIterator(Node<T> root) {
             if (root == null) return;
-            curNode = root;
             leftNodes(root);
         }
 
@@ -252,7 +252,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         @Override
         public void remove() {
             if (taken == null) throw new IllegalStateException();
-            BinarySearchTree.this.remove(taken.value);
+            BinarySearchTree.this.remover(taken, findWithParent(root, taken.value, root).get(1));
             taken = null;
         }
     }
