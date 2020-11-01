@@ -2,6 +2,8 @@ package lesson7;
 
 import kotlin.NotImplementedError;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -17,9 +19,30 @@ public class JavaDynamicTasks {
      * Если общей подпоследовательности нет, вернуть пустую строку.
      * Если есть несколько самых длинных общих подпоследовательностей, вернуть любую из них.
      * При сравнении подстрок, регистр символов *имеет* значение.
+     * Время - О(n*m), память - О(n*m), где n u m — длины строк.
      */
     public static String longestCommonSubSequence(String first, String second) {
-        throw new NotImplementedError();
+        int lFirst = first.length();
+        int lSecond = second.length();
+        int[][] matrix = new int[lFirst + 1][lSecond + 1];
+        for (int i = 1; i <= lFirst; i++) {
+            for (int j = 1; j <= lSecond; j++) {
+                int n = first.charAt(i - 1);
+                int m = second.charAt(j - 1);
+                if (n == m) matrix[i][j] = matrix[i - 1][j - 1] + 1;
+                else matrix[i][j] = Math.max(matrix[i][j - 1], matrix[i - 1][j]);
+            }
+        }
+        StringBuilder result = new StringBuilder();
+         while (lFirst > 0 && lSecond > 0) {
+             if (first.charAt(lFirst - 1) == second.charAt(lSecond - 1)) {
+                 result.append(first.charAt(lFirst - 1));
+                 lFirst --;
+                 lSecond --;
+             } else if (matrix[lFirst - 1][lSecond] > matrix[lFirst][lSecond - 1]) lFirst--;
+             else  lSecond--;
+         }
+        return result.reverse().toString();
     }
 
     /**
@@ -33,9 +56,35 @@ public class JavaDynamicTasks {
      * Если самых длинных возрастающих подпоследовательностей несколько (как в примере),
      * то вернуть ту, в которой числа расположены раньше (приоритет имеют первые числа).
      * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
+     * Время - О(nlogn), память - О(n).
      */
     public static List<Integer> longestIncreasingSubSequence(List<Integer> list) {
-        throw new NotImplementedError();
+        ArrayList<Integer> result = new ArrayList<>();
+        int[] a = new int[list.size()];
+        int[] b = new int[list.size() + 1];
+        int max = 0;
+        for (int i = list.size() - 1; i >= 0; i--) {
+            int count = 1;
+            int m = max;
+            while (count <= m) {
+                int mid = (int) Math.ceil((count + m) / 2);
+                if (list.get(b[mid]) <= list.get(i)) {
+                    m = mid - 1;
+                } else {
+                    count = mid + 1;
+                }
+            }
+            int newMax = count;
+            a[i] = b[newMax - 1];
+            b[newMax] = i;
+            if (newMax > max) max = newMax;
+        }
+        int k = b[max];
+        for (int i = max - 1; i >= 0; i--) {
+            result.add(list.get(k));
+            k = a[k];
+        }
+        return  result;
     }
 
     /**
