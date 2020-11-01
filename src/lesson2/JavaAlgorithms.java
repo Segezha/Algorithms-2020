@@ -101,11 +101,11 @@ public class JavaAlgorithms {
      * Время - O(nr), память - O(n).
      */
     static public String longestCommonSubstring(String firs, String second) {
-        int[][] subs = new int[firs.length()][second.length()];
+        int[][] subs = new int[firs.length() + 1][second.length() + 1];
         String result;
         int max = 0, index = -1;
-        for (int i = 1; i < firs.length(); i++) {
-            for (int j = 1; j < second.length(); j++) {
+        for (int i = 1; i <= firs.length(); i++) {
+            for (int j = 1; j <= second.length(); j++) {
                 if (firs.charAt(i - 1) == second.charAt(j - 1)) subs[i][j] = subs[i-1][j-1] + 1;
                 if(subs[i][j] > max) {
                     max = subs[i][j];
