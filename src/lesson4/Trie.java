@@ -104,7 +104,6 @@ public class Trie extends AbstractSet<String> implements Set<String> {
             findWords(root, "");
         }
 
-        //Время - О(n), память - О(1).
         private void findWords (Node node, String word) {
             if (!node.children.isEmpty()) {
                 for (Map.Entry<Character, Node> current : node.children.entrySet()) {

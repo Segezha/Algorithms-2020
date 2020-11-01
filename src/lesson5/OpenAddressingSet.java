@@ -1,10 +1,10 @@
 package lesson5;
 
-import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class OpenAddressingSet<T> extends AbstractSet<T> {
@@ -67,7 +67,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null) {
+        while (current != null && current != DD) {
             if (current.equals(t)) {
                 return false;
             }
@@ -92,10 +92,24 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      * Спецификация: {@link Set#remove(Object)} (Ctrl+Click по remove)
      *
      * Средняя
+     * Время - О(n), память - О(1).
      */
+    private Object DD = new Object();
     @Override
     public boolean remove(Object o) {
-        return super.remove(o);
+        if (!contains(o)) return false;
+        int index = startingIndex(o);
+        Object current = storage[index];
+                while (current != null) {
+                        if (current.equals(o)) {
+                            storage[index] = DD;
+                            break;
+                        }
+                    index++;
+                    current = storage[index];
+                }
+                size--;
+        return true;
     }
 
     /**
@@ -111,7 +125,40 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return  new OpenAddressingSetIterator();
+    }
+
+    public class OpenAddressingSetIterator implements Iterator<T> {
+        Object taken;
+        int index = 0;
+        int count = 0;
+
+        @Override
+        //Время - О(1), память - О(1).
+        public boolean hasNext() { return count < size; }
+
+        @Override
+        //Время - О(n), память - О(1).
+        @SuppressWarnings("unchecked")
+        public T next() {
+            if (!hasNext()) throw new NoSuchElementException();
+            while (storage[index] == null || storage[index] == DD) {
+                index++;
+            }
+            taken = storage[index];
+            count++;
+            index++;
+            return (T) taken;
+        }
+
+        @Override
+        //Время - О(1), память - О(1).
+        public void remove() {
+            if (taken == null) throw new IllegalStateException();
+            storage[index - 1] = DD;
+            taken = null;
+            size--;
+            count--;
+        }
     }
 }
